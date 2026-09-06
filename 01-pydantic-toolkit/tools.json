@@ -1,0 +1,44 @@
+[
+  {
+    "name": "create_ticket",
+    "description": "Creates a support ticket",
+    "parameters": [
+      {
+        "name": "title",
+        "param_type": "string",
+        "description": "Title of the ticket",
+        "required": true
+      },
+      {
+        "name": "priority",
+        "param_type": "integer",
+        "description": "Priority from 1 to 5",
+        "required": true
+      }
+    ]
+  },
+  {
+    "name": "lookup_customer",
+    "description": "Finds a customer by their ID",
+    "parameters": [
+      {
+        "name": "customer_id",
+        "param_type": "string",
+        "description": "The customer's unique ID",
+        "required": true
+      }
+    ]
+  },
+  {
+    "name": "check_order_status",
+    "description": "Checks the current status of an order",
+    "parameters": [
+      {
+        "name": "order_id",
+        "param_type": "string",
+        "description": "The order's unique ID",
+        "required": true
+      }
+    ]
+  }
+]
