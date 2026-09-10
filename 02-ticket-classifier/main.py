@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from agent import agent, MyDeps
 from mock_data import CUSTOMERS, KNOWLEDGE_BASE, SAMPLE_TICKETS
 import time

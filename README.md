@@ -6,7 +6,8 @@ Each folder is a standalone project with its own README and setup instructions.
 
 ## Projects
 
-| #   | Project                                     | What it covers                                        |
-| --- | ------------------------------------------- | ----------------------------------------------------- |
-| 01  | [pydantic-toolkit](./01-pydantic-toolkit)   | Pydantic models, validation, JSON Schema generation   |
-| 02  | [ticket-classifier](./02-ticket-classifier) | PydanticAI agents, tools, output validators, TestModel |
+| #   | Project                                       | What it covers                                          |
+| --- | --------------------------------------------- | ------------------------------------------------------- |
+| 01  | [pydantic-toolkit](./01-pydantic-toolkit)     | Pydantic models, validation, JSON Schema generation     |
+| 02  | [ticket-classifier](./02-ticket-classifier)   | PydanticAI agents, tools, output validators, TestModel   |
+| 04  | [research-assistant](./04-research-assistant) | Routing between multiple agents, Literal-typed outputs   |
