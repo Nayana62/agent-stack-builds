@@ -1,0 +1,4 @@
+pydantic==2.13.5
+pydantic-ai==2.42.0
+pytest==9.1.1
+python-dotenv==1.2.3
