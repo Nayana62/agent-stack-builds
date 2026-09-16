@@ -62,7 +62,7 @@ sequenceDiagram
 
     M->>G: invoke(Command(resume="pass"), config)
     G->>C: load the saved state
-    Note over G: human_review re-runs; interrupt() now returns "pass"
+    Note over G: human_review re-runs — interrupt() now returns "pass"
     G->>G: auto_fulfill → END
     G-->>M: final state
 ```

@@ -95,7 +95,7 @@ sequenceDiagram
     A->>T: execute_command("python tests/test_auth.py")
     FS-->>A: 4 PASS
 
-    A-->>U: "database.py stored user_role; auth.py read role. Fixed and verified."
+    A-->>U: "database.py stored user_role, auth.py read role — fixed and verified."
 ```
 
 The verification step is the whole point. The agent doesn't *claim* the fix works — it runs the tests and reads the output, and if they still fail, that failure becomes the next observation and the loop keeps going.
