@@ -16,7 +16,7 @@ It has five tools, all scoped to a sandbox directory (`mock_codebase/`):
 
 That last pair is what makes this different from every project before it. Projects 01–06 could *look things up*. This one **changes files on disk and runs code**. The agent isn't producing an answer for a human to act on — it's doing the acting.
 
-There is no graph to draw here and no routing functions to write. `create_agent()` builds the reason-act loop for you; the entire agent is a model, a list of tools, a system prompt, and a checkpointer.
+There is no graph to draw here and no routing functions to write. `create_agent()` builds the reason-act loop for you; the entire agent is a model, a list of tools, a system prompt, and a checkpointer. The system prompt is where most of the tuning went — a six-step procedure, and a short list of rules whose only job is to stop the model re-reading things it has already read.
 
 ## The bug it's given
 
@@ -143,11 +143,13 @@ flowchart LR
 - **`create_agent` is the whole loop in one call.** Model, tools, system prompt, checkpointer — no nodes, no edges, no routers. The graph underneath is still a LangGraph graph (same `thread_id`, same checkpointing, same `invoke`), which is why the config dict from project 06 works unchanged here.
 - **Tool docstrings are the agent's instructions for using them.** Each docstring says not just what the tool does but *when to reach for it* — "use this to trace where functions are defined", "use this to apply a bug fix after identifying the issue". The model reads those strings at decision time; a vague docstring is a vague agent.
 - **`execute_command` returns stderr, deliberately.** A tool that swallowed stderr would hand the agent a silent success on a failing test run. Tracebacks are the single most useful thing a debugging agent can read, so they're captured and returned as part of the result.
-- **`recursion_limit` is the stop button.** The loop has no natural end — the model keeps going until it stops asking for tools. 25 steps is roughly 10–12 tool calls, which is enough for this bug and not enough to thrash forever if the model gets stuck re-reading the same file.
+- **`recursion_limit` is the stop button.** The loop has no natural end — the model keeps going until it stops asking for tools. 25 steps is roughly 10–12 tool calls: enough for this bug, and a hard ceiling for when the prompt's anti-thrashing rules don't hold.
 - **`SqliteSaver.from_conn_string()` is a context manager, not a constructor.** It yields a saver and *closes the connection* when the `with` block exits, which makes it wrong for a module-level checkpointer — the saver would be dead by the time the agent used it. `SqliteSaver(sqlite3.connect(path, check_same_thread=False))` is the form that outlives the import.
 - **`BASE_PATH` is the sandbox.** Every tool joins its path onto `mock_codebase/`, so the agent's blast radius is one directory. That's the only thing standing between "fixes a test" and "rewrites your project" — worth noticing how little code it is.
 - **`dirs[:] = [...]` is load-bearing.** Assigning to the slice mutates the list `os.walk` is holding, which is how you prune directories mid-walk. `dirs = [...]` would rebind a local name and walk `__pycache__` anyway.
-- **The system prompt sets the *method*, not the answer.** "List the files first, then investigate systematically" gives the model a procedure. Without it, models tend to guess at a fix from the bug report alone and write it without ever running the test.
+- **The system prompt sets the *method*, not the answer.** It lays out six steps — list the files, run the tests to see the real error, read only what the traceback points at, stop investigating once the root cause is clear, write the fix, verify once — and says nothing about what the bug is or which file it's in. Without a procedure, models tend to guess at a fix from the bug report alone and write it without ever running the test.
+- **The expensive failure mode isn't a wrong fix, it's thrashing.** Left to itself the model re-reads files it has already read and re-greps keys it has already found, spending steps re-confirming what's sitting in its own context. That's what the `## Rules` half of the prompt is for: never re-read a file, never search for something a file already told you, fix as soon as you can name the bug, one verification run. Rules in a prompt are advisory — `recursion_limit` is the only thing that actually stops the loop — but they're the difference between finishing in ~6 tool calls and grinding into the ceiling.
+- **"Be specific" has to be asked for.** The last rule makes the final answer name the file, the line, the old value and the new value. Without it the closing message trends toward "I identified and resolved the issue", which is useless for the one thing you actually want from a transcript: checking whether the fix it made is the fix you'd have made.
 
 ## What this solves
 
