@@ -14,7 +14,7 @@ def authenticate(email: str, password: str) -> dict:
     return {
         "email": user["email"],
         "name": user.get("name"),
-        "role": user.get("user_role"),
+        "role": user.get("role"),
     }
 
 
